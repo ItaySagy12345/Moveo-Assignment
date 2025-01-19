@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String
 from database.config import Base
 from database.crud_base import CrudBase
 
-class Item(Base, CrudBase):
+class Item(CrudBase, Base):
     __tablename__ = 'items'
 
     id = Column(Integer, primary_key=True, index=True)

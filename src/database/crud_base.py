@@ -1,15 +1,14 @@
 from sqlalchemy.orm import Session
-from database.config import Base
-from sqlalchemy.ext.declarative import DeclarativeMeta
-from abc import ABC
 from pydantic import BaseModel
+from sqlalchemy.ext.declarative import DeclarativeMeta
 
 
-class CrudBase(ABC):
+class CrudBase:
     """
     Abstract class for database models
     """
 
+    @classmethod
     def count(cls, db: Session):
         """
         Count method for database models
@@ -19,6 +18,7 @@ class CrudBase(ABC):
 
         SQL = f"SELECT COUNT(*) FROM {cls.__tablename__}"
 
+    @classmethod
     def list(cls: DeclarativeMeta, db: Session):
         """
         List method for database models
@@ -28,6 +28,7 @@ class CrudBase(ABC):
 
         SQL = f"SELECT * FROM {cls.__tablename__}"
 
+    @classmethod
     def find(cls: DeclarativeMeta, db: Session, slug: str):
         """
         Find method for database models
@@ -38,6 +39,7 @@ class CrudBase(ABC):
 
         SQL = f"SELECT * FROM {cls.__tablename__} WHERE id = {id}"
 
+    @classmethod
     def create(cls: DeclarativeMeta, db: Session, data: BaseModel):
         """
         Create method for database models
@@ -48,6 +50,7 @@ class CrudBase(ABC):
 
         SQL = f"INSERT INTO {cls.__tablename__} (column1, column2, column3, ...) VALUES (value1, value2, value3, ...)"
 
+    @classmethod
     def update(cls: DeclarativeMeta, db: Session, id: int, data: BaseModel):
         """
         Update method for database models
@@ -58,6 +61,7 @@ class CrudBase(ABC):
 
         SQL = f"UPDATE INTO {cls.__tablename__} (column1, column2, column3, ...) VALUES (value1, value2, value3, ...)"
 
+    @classmethod
     def delete(cls: DeclarativeMeta, db: Session, id: int):
         """
         Delete method for database models
