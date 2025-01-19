@@ -1,0 +1,27 @@
+my_fastapi_project/
+├── app/
+│   ├── __init__.py
+│   ├── main.py               # Entry point, FastAPI instance
+│   ├── models/               # Pydantic models and SQLAlchemy models
+│   │   ├── __init__.py
+│   │   ├── user.py           # Example model
+│   │   └── item.py           # Example model
+│   ├── routes/               # Request handlers (similar to controllers)
+│   │   ├── __init__.py
+│   │   ├── user_routes.py    # User-related endpoints
+│   │   └── item_routes.py    # Item-related endpoints
+│   ├── services/             # Business logic layer (similar to services)
+│   │   ├── __init__.py
+│   │   ├── user_service.py   # Logic for user operations
+│   │   └── item_service.py   # Logic for item operations
+│   ├── dependencies/         # Dependency injection and shared components
+│   │   ├── __init__.py
+│   │   ├── db.py             # Database connections, sessions
+│   │   └── auth.py           # Authentication-related dependencies
+│   ├── schemas/              # Pydantic schemas for request/response models
+│   │   ├── __init__.py
+│   │   ├── user_schema.py    # Pydantic schemas for user
+│   │   └── item_schema.py    # Pydantic schemas for item
+│   └── config.py             # Configuration (e.g., settings, environment variables)
+├── requirements.txt          # Python dependencies
+└── README.md                 # Project description
