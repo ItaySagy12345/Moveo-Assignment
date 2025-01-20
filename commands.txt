@@ -18,8 +18,24 @@ Build an image (--no-cache flag means build from scratch): docker build --no-cac
 Build a container (FastAPI): docker run -d -p 8000:8000 --name server-container server
 Destroy a container: docker rm <container_name>
 List images: docker images
+Prune images: docker image prune -f
 Start a container: docker start <container_name>
 Stop a container: docker stop <container_name>
 Rename a container: docker rename <curr_container_name> <new_container_name>
 Status of containers: docker ps -a
 Logs of container: docker logs <container_name>
+
+# DOCKER-COMPOSE:
+startup: docker-compose up --build
+startup (with build): docker-compose up --build
+shutdown: docker-compose down
+
+# POSTGRES IN CONTAINER:
+Access postgres: docker exec -it postgres-container psql -U postgres
+List databases: \l
+List tables: \dt
+Verify correct user: SELECT current_user;
+
+# ALEMBIC IN CONTAINER:
+Generate migration: docker-compose exec server-container alembic revision --autogenerate -m "Create items table"
+Upgrade migration: docker-compose exec server-container alembic upgrade head

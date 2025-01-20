@@ -34,7 +34,12 @@ class CrudBase:
         Return [Union[list[DeclarativeMeta], None]]: A list of the records
         """
 
-        return db.query(cls).all()
+        models = db.query(cls).all()
+
+        if not models:
+            return []
+        
+        return models
 
     @classmethod
     def find(cls: DeclarativeMeta, db: Session, slug: str) -> Union[DeclarativeMeta, None]:
