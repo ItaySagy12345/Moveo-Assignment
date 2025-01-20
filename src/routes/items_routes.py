@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends
-from models.items_model import Item
+from src.models.items_model import Item
 from fastapi import status
-from generics.base_response import BaseResponse
-from dependencies.item_dep import item_dep
-from dependencies.db_dep import db_dep
+from src.generics.base_response import BaseResponse
+from src.dependencies.item_dep import item_dep
+from src.dependencies.db_dep import db_dep
 from sqlalchemy.orm import Session
-from schemas.items_schema import ItemCreateSchema, ItemUpdateSchema, ItemSchema
-from utils.slug_generator import slug_generator
+from src.schemas.items_schema import ItemCreateSchema, ItemUpdateSchema, ItemSchema
+from src.utils.slug_generator import slug_generator
+# from src.kafka.kafka_traffic import kafka_report, producer
 
 
 items_router = APIRouter()
@@ -36,6 +37,10 @@ async def create_item(data: ItemCreateSchema, db: Session = Depends(db_dep)):
     )
     item: Item = Item.create(db=db, data=create_item)
     item_data: ItemSchema = ItemSchema.model_validate(item)
+
+    # producer.produce('my_topic', key='key', value='value', callback=kafka_report)
+    # producer.flush()
+
     return BaseResponse(data=item_data)
     
 

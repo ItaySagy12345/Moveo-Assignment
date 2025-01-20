@@ -1,8 +1,8 @@
 from fastapi import Depends
-from dependencies.db_dep import db_dep
-from models.items_model import Item
+from src.dependencies.db_dep import db_dep
+from src.models.items_model import Item
 from sqlalchemy.orm import Session
-from errors.errors import ArgumentsError
+from src.errors.errors import ArgumentsError
 
 
 def item_dep(slug: str, db: Session = Depends(db_dep)) -> Item:

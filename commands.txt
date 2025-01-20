@@ -9,6 +9,17 @@ Downgrade migration (to specific migration): alembic downgrade <migration id>
 Downgrade migration (down 1): alembic downgrade -1
 Downgrade migration (to default base): alembic downgrade base
 
-Credentials:
+# CREDENTIALS:
 postgres: pass: postgres, port: 5432, name: moveo_db
 pgadmin - http://localhost:8080: email: itayemails@gmail.com, pass: postgres
+
+# DOCKER
+Build an image (--no-cache flag means build from scratch): docker build --no-cache -t <image_name> .
+Build a container (FastAPI): docker run -d -p 8000:8000 --name server-container server
+Destroy a container: docker rm <container_name>
+List images: docker images
+Start a container: docker start <container_name>
+Stop a container: docker stop <container_name>
+Rename a container: docker rename <curr_container_name> <new_container_name>
+Status of containers: docker ps -a
+Logs of container: docker logs <container_name>

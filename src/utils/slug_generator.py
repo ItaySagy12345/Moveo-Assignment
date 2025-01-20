@@ -10,7 +10,7 @@ def slug_generator(db: Session, name: str, model: DeclarativeMeta) -> str:
     record_exists = model.find(db=db, slug=name)
     
     if record_exists:
-        num_records: int = model.count(db=db)
+        num_records: int = model.count(db=db, name=name)
         slug = f"{name}-{num_records - 1}"
     else:
         slug = name

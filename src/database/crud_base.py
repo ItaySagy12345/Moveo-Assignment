@@ -1,9 +1,9 @@
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from sqlalchemy.ext.declarative import DeclarativeMeta
-from errors.errors import NotFoundError
+from src.errors.errors import NotFoundError
 from typing import Union
-from utils.logger import Logger
+from src.utils.logger import Logger
 
 
 class CrudBase:
@@ -12,14 +12,19 @@ class CrudBase:
     """
 
     @classmethod
-    def count(cls, db: Session) -> int:
+    def count(cls, db: Session, **kwargs) -> int:
         """
         Count method for database models
         Param: db [Session]: The database session
         Return [Integer]: The number of records
         """
 
-        return db.query(cls).count()
+        query = db.query(cls)
+
+        for key, value in kwargs.items():
+            query = query.filter(getattr(cls, key) == value)
+
+        return query.count()
 
     @classmethod
     def list(cls: DeclarativeMeta, db: Session) -> Union[list[DeclarativeMeta], None]:
