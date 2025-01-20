@@ -1,6 +1,9 @@
 from sqlalchemy import Column, Integer, String
-from database.config import Base
-from database.crud_base import CrudBase
+from src.database.crud_base import CrudBase
+from sqlalchemy.ext.declarative import declarative_base
+
+
+Base = declarative_base()
 
 class Item(CrudBase, Base):
     __tablename__ = 'items'

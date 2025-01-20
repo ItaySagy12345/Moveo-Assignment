@@ -1,2 +1,14 @@
+# GENERAL
 Create virtualenv: python3 -m venv venv
 Activate virtualenv: source venv/bin/activate
+
+# ALEMBIC
+Generate migration: alembic revision --autogenerate -m "<description...>"
+Upgrade migration: alembic upgrade head
+Downgrade migration (to specific migration): alembic downgrade <migration id>
+Downgrade migration (down 1): alembic downgrade -1
+Downgrade migration (to default base): alembic downgrade base
+
+Credentials:
+postgres: pass: postgres, port: 5432, name: moveo_db
+pgadmin - http://localhost:8080: email: itayemails@gmail.com, pass: postgres
