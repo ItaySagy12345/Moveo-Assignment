@@ -3,10 +3,10 @@ from typing import TypeVar, Generic
 
 T = TypeVar('T')
 
-class BaseResponse(Generic[T], BaseModel):
+class BaseResponse(BaseModel, Generic[T]):
     """
     Universal API response class
     """
 
-    data: dict = {}
+    data: T
     meta: dict = {}

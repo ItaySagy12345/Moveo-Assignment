@@ -1,6 +1,9 @@
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from sqlalchemy.ext.declarative import DeclarativeMeta
+from errors.errors import NotFoundError
+from typing import Union
+from utils.logger import Logger
 
 
 class CrudBase:
@@ -9,57 +12,81 @@ class CrudBase:
     """
 
     @classmethod
-    def count(cls, db: Session):
+    def count(cls, db: Session) -> int:
         """
         Count method for database models
         Param: db [Session]: The database session
         Return [Integer]: The number of records
         """
 
-        SQL = f"SELECT COUNT(*) FROM {cls.__tablename__}"
+        return db.query(cls).count()
 
     @classmethod
-    def list(cls: DeclarativeMeta, db: Session):
+    def list(cls: DeclarativeMeta, db: Session) -> Union[list[DeclarativeMeta], None]:
         """
         List method for database models
         Param: db [Session]: The database session
-        Return [List[Any]]: A list of the records
+        Return [Union[list[DeclarativeMeta], None]]: A list of the records
         """
 
-        SQL = f"SELECT * FROM {cls.__tablename__}"
+        return db.query(cls).all()
 
     @classmethod
-    def find(cls: DeclarativeMeta, db: Session, slug: str):
+    def find(cls: DeclarativeMeta, db: Session, slug: str) -> Union[DeclarativeMeta, None]:
         """
         Find method for database models
         Param: db [Session]: The database session
         Param: id [Integer]: The record's id
-        Return [Any]: The found record
+        Return [Union[DeclarativeMeta, None]]: The found record if there was one
         """
 
-        SQL = f"SELECT * FROM {cls.__tablename__} WHERE id = {id}"
+        return db.query(cls).filter(cls.slug == slug).first() 
 
     @classmethod
-    def create(cls: DeclarativeMeta, db: Session, data: BaseModel):
+    def create(cls: DeclarativeMeta, db: Session, data: BaseModel) -> DeclarativeMeta:
         """
         Create method for database models
         Param: db [Session]: The database session
         Param: data [Any]: The data to insert
-        Return [Integer]: The inserted record's id
+        Return [DeclarativeMeta]: The created record
         """
 
-        SQL = f"INSERT INTO {cls.__tablename__} (column1, column2, column3, ...) VALUES (value1, value2, value3, ...)"
+        model_data = cls(**data.model_dump())
+        db.add(model_data)
+        db.commit()
+        db.refresh(model_data)
+        return model_data
+
 
     @classmethod
-    def update(cls: DeclarativeMeta, db: Session, id: int, data: BaseModel):
+    def update(cls: DeclarativeMeta, db: Session, id: int, data: BaseModel) -> DeclarativeMeta:
         """
         Update method for database models
         Param: db [Session]: The database session
         Param: id [Integer]: The record's id
-        Return [Integer]: The record's id
+        Return [DeclarativeMeta]: The updated record
         """
 
-        SQL = f"UPDATE INTO {cls.__tablename__} (column1, column2, column3, ...) VALUES (value1, value2, value3, ...)"
+        try:
+            model = db.query(cls).filter(cls.id == id).first()
+
+            if not model:
+                raise NotFoundError('Resource not found')
+            
+            update_data = data.model_dump()
+
+            for key, value in update_data.items():
+                if hasattr(model, key):
+                    setattr(model, key, value)
+
+            db.commit()
+            db.refresh(model)
+            return model
+
+        except Exception as e:
+            Logger.log(e)
+            db.rollback()
+            return
 
     @classmethod
     def delete(cls: DeclarativeMeta, db: Session, id: int):
@@ -70,4 +97,10 @@ class CrudBase:
         Return [Integer]: The record's id
         """
 
-        SQL = f"DELETE FROM {cls.__tablename__} WHERE id = {id}"
+        item = db.query(cls).filter(cls.id == id).first()
+
+        if not item:
+            raise NotFoundError('Resource not found')
+
+        db.delete(item)
+        db.commit()

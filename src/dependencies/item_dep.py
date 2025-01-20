@@ -1,12 +1,18 @@
+from fastapi import Depends
+from dependencies.db_dep import db_dep
 from models.items_model import Item
-from database.session import DatabaseSession
+from sqlalchemy.orm import Session
+from errors.errors import ArgumentsError
 
 
-def item_dep(slug: str) -> Item:
+def item_dep(slug: str, db: Session = Depends(db_dep)) -> Item:
     """
     Returns the item by its slug
     """
+    
+    item: Item = Item.find(db=db, slug=slug)
+    
+    if not item:
+        raise ArgumentsError('Unprocessable, error with one or more arguments provided')
 
-    with DatabaseSession() as db:
-        item: Item = Item.find(db=db, slug=slug)
-        return item
+    return item
