@@ -1,6 +1,8 @@
 # GENERAL
 Create virtualenv: python3 -m venv venv
 Activate virtualenv: source venv/bin/activate
+Check running processes on port:  netstat -anp tcp | grep <port>
+Kill process: sudo kill -9 <PID>
 
 # ALEMBIC
 Generate migration: alembic revision --autogenerate -m "<description...>"
@@ -15,12 +17,16 @@ pgadmin - http://localhost:8080: email: itayemails@gmail.com, pass: postgres
 
 # DOCKER
 Build an image (--no-cache flag means build from scratch): docker build --no-cache -t <image_name> .
+Destroy an image: docker rmi <image_id_or_image_name>
 Build a container (FastAPI): docker run -d -p 8000:8000 --name server-container server
 Destroy a container: docker rm <container_name>
+    Ex: docker rm server-container postgres-container pgadmin-container
 List images: docker images
 Prune images: docker image prune -f
+Prune networks: docker network prune
 Start a container: docker start <container_name>
 Stop a container: docker stop <container_name>
+    Ex: docker stop server-container postgres-container pgadmin-container
 Rename a container: docker rename <curr_container_name> <new_container_name>
 Status of containers: docker ps -a
 Logs of container: docker logs <container_name>

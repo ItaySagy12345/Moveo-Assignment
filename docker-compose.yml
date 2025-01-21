@@ -1,6 +1,34 @@
 version: '3.8'
 
 services:
+  server:
+    image: server
+    container_name: server-container
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/moveo_db
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    networks:
+      - moveo-net
+    command: >
+      sh -c "
+        echo 'Waiting for postgres to be ready...';
+        until nc -z -v -w30 postgres 5432; do
+          echo 'Waiting for postgres...';
+          sleep 2;
+        done;
+        echo 'Postgres is up, running migrations...';
+        alembic upgrade head && 
+        echo 'Migrations complete, starting app...';
+        ls -l /app;
+        uvicorn src.server:app --host 0.0.0.0 --port 8000
+      "
+
   postgres:
     image: postgres:13
     container_name: postgres-container
@@ -14,21 +42,6 @@ services:
       - moveo-net
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
-  server:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: server
-    container_name: server-container
-    environment:
-      DATABASE_URL: postgres://postgres:postgres@postgres:5432/moveo_db
-    ports:
-      - "8000:8000"
-    depends_on:
-      - postgres
-    networks:
-      - moveo-net
 
   pgadmin:
     image: dpage/pgadmin4
