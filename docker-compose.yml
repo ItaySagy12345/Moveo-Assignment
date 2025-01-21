@@ -49,10 +49,15 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: itayemails@gmail.com
       PGADMIN_DEFAULT_PASSWORD: postgres
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
     ports:
       - "8080:80"
     networks:
       - moveo-net
+    volumes:
+      - ./pgpass:/pgpass
+      - ./servers.json:/pgadmin4/servers.json
 
 networks:
   moveo-net:
