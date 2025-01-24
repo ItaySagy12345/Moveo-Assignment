@@ -7,7 +7,8 @@ from src.dependencies.db_dep import db_dep
 from sqlalchemy.orm import Session
 from src.schemas.items_schema import ItemCreateSchema, ItemUpdateSchema, ItemSchema
 from src.utils.slug_generator import slug_generator
-# from src.kafka.kafka_traffic import kafka_report, producer
+from src.kafka.producer import kafka_producer 
+from src.kafka.topics import KafkaTopics
 
 
 items_router = APIRouter()
@@ -38,8 +39,8 @@ async def create_item(data: ItemCreateSchema, db: Session = Depends(db_dep)):
     item: Item = Item.create(db=db, data=create_item)
     item_data: ItemSchema = ItemSchema.model_validate(item)
 
-    # producer.produce('my_topic', key='key', value='value', callback=kafka_report)
-    # producer.flush()
+    kafka_message = f"{item.id} {item_data.slug} {item_data.name} {item_data.description}"
+    kafka_producer.produce(topic=KafkaTopics.ITEM_CREATED, message=kafka_message)
 
     return BaseResponse(data=item_data)
     

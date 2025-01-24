@@ -18,6 +18,7 @@ pgadmin - http://localhost:8080: email: itayemails@gmail.com, pass: postgres
 # DOCKER
 Build an image (--no-cache flag means build from scratch): docker build --no-cache -t <image_name> .
 Destroy an image: docker rmi <image_id_or_image_name>
+    Ex: docker rmi server
 Build a container (FastAPI): docker run -d -p 8000:8000 --name server-container server
 Destroy a container: docker rm <container_name>
     Ex: docker rm server-container postgres-container pgadmin-container
@@ -26,7 +27,7 @@ Prune images: docker image prune -f
 Prune networks: docker network prune
 Start a container: docker start <container_name>
 Stop a container: docker stop <container_name>
-    Ex: docker stop server-container postgres-container pgadmin-container
+    Ex: docker stop server-container postgres-container pgadmin-container kafka-container zookeeper-container
 Rename a container: docker rename <curr_container_name> <new_container_name>
 Status of containers: docker ps -a
 Logs of container: docker logs <container_name>
@@ -35,6 +36,7 @@ Logs of container: docker logs <container_name>
 startup: docker-compose up --build
 startup (with build): docker-compose up --build
 shutdown: docker-compose down
+shutdown with volumes: docker-compose down --volumes
 
 # POSTGRES IN CONTAINER:
 Access postgres: docker exec -it postgres-container psql -U postgres
