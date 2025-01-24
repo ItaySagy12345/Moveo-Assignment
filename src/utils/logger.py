@@ -1,5 +1,6 @@
-class Logger:
+import logging
 
-    @staticmethod
-    def log(self, string: str) -> None:
-        print(f"Log: {string}")
+
+logging.basicConfig(level=logging.INFO)
+
+logger = logging.getLogger(__name__)

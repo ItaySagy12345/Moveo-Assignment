@@ -1,7 +1,10 @@
-class KafkaTopics:
+from enum import Enum
+
+
+class KafkaTopics(Enum):
     """
-    A constants class for Kafka topics
+    An enum for Kafka topics
     """
-        
+
     ITEM_CREATED = 'item_created'
     ITEM_UPDATED = 'item_updated'

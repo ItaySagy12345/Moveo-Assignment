@@ -39,8 +39,8 @@ async def create_item(data: ItemCreateSchema, db: Session = Depends(db_dep)):
     item: Item = Item.create(db=db, data=create_item)
     item_data: ItemSchema = ItemSchema.model_validate(item)
 
-    kafka_message = f"{item.id} {item_data.slug} {item_data.name} {item_data.description}"
-    kafka_producer.produce(topic=KafkaTopics.ITEM_CREATED, message=kafka_message)
+    event_message = f"{item.id} {item_data.slug} {item_data.name} {item_data.description}"
+    kafka_producer.produce(topic=KafkaTopics.ITEM_CREATED, message=event_message)
 
     return BaseResponse(data=item_data)
     
@@ -62,6 +62,10 @@ async def update_item(data: ItemUpdateSchema, db: Session = Depends(db_dep), ite
     """
     
     item: Item = item.update(db=db, id=item.id, data=data)
+
+    event_message = f"{item.id} {item.slug} {item.name} {item.description}"
+    kafka_producer.produce(topic=KafkaTopics.ITEM_UPDATED, message=event_message)
+
     return BaseResponse(data=item)
 
 

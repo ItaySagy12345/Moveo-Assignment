@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from src.errors.errors import NotFoundError
 from typing import Union
-from src.utils.logger import Logger
+from src.utils.logger import logger
 
 
 class CrudBase:
@@ -94,7 +94,7 @@ class CrudBase:
             return model
 
         except Exception as e:
-            Logger.log(e)
+            logger.info(e)
             db.rollback()
             return
 

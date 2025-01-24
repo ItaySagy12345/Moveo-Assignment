@@ -1,7 +1,11 @@
+import json
 from confluent_kafka import Consumer, KafkaException, KafkaError
+from src.utils.logger import logger
+from src.kafka.topics import KafkaTopics
+
 
 class KafkaConsumer:
-    config = {
+    config = {     
         'bootstrap.servers': 'kafka:9093',
         'group.id': 'fastapi-consumer',
         'auto.offset.reset': 'earliest'
@@ -10,15 +14,18 @@ class KafkaConsumer:
     def __init__(self, name: str):
         self.name = name
         self.consumer = Consumer(self.config)
+        logger.info("Initialized")
 
-    def subscribe(self, topics: list[str]) -> None:
+    def subscribe(self, topics: list[KafkaTopics]) -> None:
         """
         Subscribe to a Kafka topic
-        Param: topics List[str]: The kafka topics to consume
+        Param: topics List[KafkaTopics]: The kafka topics to consume
         Returns: None
         """
-                
+        
+        topics: list[str] = [topic.value for topic in topics]
         self.consumer.subscribe(topics=topics)
+        self._log(f"Subscribed to topics: {json.dumps(topics)}")
 
     def consume(self) -> None:
         """
@@ -53,4 +60,4 @@ class KafkaConsumer:
         Returns: None
         """
 
-        print(f"KAFKA CONSUMER: {log}")
+        logger.info(f"KAFKA CONSUMER ({self.name}): {log}")
