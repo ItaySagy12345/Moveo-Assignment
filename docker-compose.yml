@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres:13
+    image: postgres:latest
     container_name: postgres-container
     environment:
       POSTGRES_USER: postgres
@@ -17,7 +17,7 @@ services:
     platform: linux/amd64
 
   pgadmin:
-    image: dpage/pgadmin4
+    image: dpage/pgadmin4:latest
     container_name: pgadmin-container
     environment:
       PGADMIN_DEFAULT_EMAIL: itayemails@gmail.com
@@ -34,7 +34,7 @@ services:
     platform: linux/amd64
 
   zookeeper:
-    image: wurstmeister/zookeeper:3.4.6
+    image: wurstmeister/zookeeper:latest
     container_name: zookeeper-container
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
