@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from src.models.items_model import Item
 from fastapi import status
 from src.generics.base_response import BaseResponse
@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from src.schemas.items_schema import ItemCreateSchema, ItemUpdateSchema, ItemSchema
 from src.utils.slug_generator import slug_generator
 from src.kafka.producer import kafka_producer 
-from src.kafka.topics import KafkaTopics
+from src.kafka.utils.topics import KafkaTopics
 
 
 items_router = APIRouter()
@@ -25,7 +25,7 @@ async def list_items(db: Session = Depends(db_dep)):
 
 
 @items_router.post("/items", tags=["items", "create"], response_model=BaseResponse[ItemSchema], status_code=status.HTTP_201_CREATED)
-async def create_item(data: ItemCreateSchema, db: Session = Depends(db_dep)):
+async def create_item(request: Request, data: ItemCreateSchema, db: Session = Depends(db_dep)):
     """
     Creates an item and returns it to the client
     """
@@ -39,7 +39,7 @@ async def create_item(data: ItemCreateSchema, db: Session = Depends(db_dep)):
     item: Item = Item.create(db=db, data=create_item)
     item_data: ItemSchema = ItemSchema.model_validate(item)
 
-    event_message = f"{item.id} {item_data.slug} {item_data.name} {item_data.description}"
+    event_message = f"Method: {request.method} | URL: {str(request.url)} | Item ID: {item.id} | Slug: {item_data.slug} | Name: {item_data.name} | Description: {item_data.description}"
     kafka_producer.produce(topic=KafkaTopics.ITEM_CREATED, message=event_message)
 
     return BaseResponse(data=item_data)
@@ -56,14 +56,14 @@ async def get_item(item: Item = Depends(item_dep)):
 
 
 @items_router.put("/items/{slug}", tags=["items", "update"], response_model=BaseResponse[ItemSchema], status_code=status.HTTP_200_OK)
-async def update_item(data: ItemUpdateSchema, db: Session = Depends(db_dep), item: Item = Depends(item_dep)):
+async def update_item(request: Request, data: ItemUpdateSchema, db: Session = Depends(db_dep), item: Item = Depends(item_dep)):
     """
     Updates an item and returns it to the client
     """
     
     item: Item = item.update(db=db, id=item.id, data=data)
 
-    event_message = f"{item.id} {item.slug} {item.name} {item.description}"
+    event_message = f"Method: {request.method} | URL: {str(request.url)} | Item ID: {item.id} | Slug: {item.slug} | Name: {item.name} | Description: {item.description}"
     kafka_producer.produce(topic=KafkaTopics.ITEM_UPDATED, message=event_message)
 
     return BaseResponse(data=item)

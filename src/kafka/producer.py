@@ -1,16 +1,12 @@
 from confluent_kafka import Producer
 from src.utils.logger import logger
-from src.kafka.topics import KafkaTopics
+from src.kafka.utils.config import KAFKA_CONFIG
+from src.kafka.utils.topics import KafkaTopics
 
 
 class KafkaProducer:
-    config = {
-        'bootstrap.servers': 'kafka:9093',
-        'client.id': 'fastapi-producer'
-    }
-
     def __init__(self):
-        self._producer = Producer(self.config)
+        self._producer = Producer(KAFKA_CONFIG)
 
     def produce(self, topic: KafkaTopics, message: str) -> None:
         """

@@ -1,37 +1,29 @@
 import threading
 from fastapi import FastAPI
+from src.kafka.admin import kafka_admin
 from src.routes.items_routes import items_router
 from src.kafka.consumer import KafkaConsumer
-from src.kafka.topics import KafkaTopics
-from src.utils.logger import logger
-from contextlib import asynccontextmanager
+from src.kafka.utils.topics import KafkaTopics
 
-app = FastAPI()
 
-app.include_router(items_router, prefix="/api")
-
-def start_kafka_consumers():
+def initialize_item_consumer() -> None:
     """
-    Starts the Kafka consumer
+    Initializes a KafkaConsumer instance and subscribes it to the relevant Kafka topics
     """
 
     item_consumer = KafkaConsumer(name='item_consumer')
-    item_consumer.subscribe([KafkaTopics.ITEM_CREATED, KafkaTopics.ITEM_UPDATED])
+    subscribe_topics = [KafkaTopics.ITEM_CREATED, KafkaTopics.ITEM_UPDATED]
+    existing_topics: list[str] = kafka_admin.get_existing_topics()
+    missing_topics: list[KafkaTopics] = [topic for topic in subscribe_topics if topic not in existing_topics]
+
+    if missing_topics:
+        kafka_admin.create_topic(topics=missing_topics)
+
+    item_consumer.subscribe(topics=subscribe_topics)
     item_consumer.consume()
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """
-    Starts the server and Kafka consumer in separate threads
-    """
 
-    logger.info("Initializing Kafka consumers")
-    consumer_thread = threading.Thread(target=start_kafka_consumers, daemon=True)
-    consumer_thread.start()
+app = FastAPI()
+app.include_router(items_router, prefix="/api")
 
-    yield
-
-    logger.info("Shutting down FastAPI server")
-
-
-app = FastAPI(lifespan=lifespan)
+threading.Thread(target=initialize_item_consumer, daemon=True).start()

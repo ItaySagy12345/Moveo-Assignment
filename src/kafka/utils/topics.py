@@ -1,9 +1,8 @@
 from enum import Enum
 
-
 class KafkaTopics(Enum):
     """
-    An enum for Kafka topics
+    An enum class for Kafka topics
     """
 
     ITEM_CREATED = 'item_created'

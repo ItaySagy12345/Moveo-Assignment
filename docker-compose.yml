@@ -62,21 +62,27 @@ services:
     networks:
       - moveo-net
     platform: linux/amd64
-    volumes:
-      - ./create-topics.sh:/create-topics.sh
-    command: >
+
+  kafka-setup:
+    image: wurstmeister/kafka:latest
+    container_name: kafka-setup-container
+    depends_on:
+      - kafka
+    networks:
+      - moveo-net
+    entrypoint: >
       sh -c "
-        echo 'Waiting for Kafka to be ready...';
-        until nc -z -v -w30 kafka 9093; do
+        until kafka-broker-api-versions.sh --bootstrap-server kafka:9093; do
           echo 'Waiting for Kafka...';
           sleep 2;
         done;
-        
-        echo 'Kafka is up, creating topics...';
-        /create-topics.sh;
-        echo 'Topics created, starting Kafka server...';
-        kafka-server-start /etc/kafka/server.properties
+
+        kafka-topics.sh --create --topic item_created --bootstrap-server kafka:9093 --partitions 1 --replication-factor 1 &&
+        kafka-topics.sh --create --topic item_updated --bootstrap-server kafka:9093 --partitions 1 --replication-factor 1;
+
+        echo 'Kafka topics created successfully.';
       "
+    platform: linux/amd64
 
   server:
     image: server
@@ -91,7 +97,7 @@ services:
       - "8000:8000"
     depends_on:
       - postgres
-      - kafka
+      - kafka-setup
     networks:
       - moveo-net
     command: >

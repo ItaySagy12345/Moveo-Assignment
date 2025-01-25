@@ -1,20 +1,14 @@
 import json
 from confluent_kafka import Consumer, KafkaException, KafkaError
 from src.utils.logger import logger
-from src.kafka.topics import KafkaTopics
+from src.kafka.utils.config import KAFKA_CONFIG
+from src.kafka.utils.topics import KafkaTopics
 
 
 class KafkaConsumer:
-    config = {     
-        'bootstrap.servers': 'kafka:9093',
-        'group.id': 'fastapi-consumer',
-        'auto.offset.reset': 'earliest'
-    }
-    
     def __init__(self, name: str):
         self.name = name
-        self.consumer = Consumer(self.config)
-        logger.info("Initialized")
+        self.consumer = Consumer(KAFKA_CONFIG)
 
     def subscribe(self, topics: list[KafkaTopics]) -> None:
         """
@@ -23,19 +17,19 @@ class KafkaConsumer:
         Returns: None
         """
         
-        topics: list[str] = [topic.value for topic in topics]
+        topics = [topic.value for topic in topics]
         self.consumer.subscribe(topics=topics)
         self._log(f"Subscribed to topics: {json.dumps(topics)}")
 
     def consume(self) -> None:
         """
-        Produce a Kafka message to a specific topic
+        Consume messages from subscribed Kafka topics
         Returns: None
         """
-                
+
         try:
             self._log("Open")
-            
+
             while True:
                 message = self.consumer.poll(timeout=1.0)
 
