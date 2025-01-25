@@ -37,7 +37,7 @@ class KafkaConsumer:
                     continue
                 elif message.error():
                     if message.error().code() == KafkaError._PARTITION_EOF:
-                        self._log(f"End of partition reached {message.partition()} at offset {message.offset()}")
+                        self._log(f"End of partition reached")
                     else:
                         raise KafkaException(message.error())
                 else:
