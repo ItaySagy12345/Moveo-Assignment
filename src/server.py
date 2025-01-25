@@ -9,6 +9,7 @@ from src.kafka.utils.topics import KafkaTopics
 def initialize_item_consumer() -> None:
     """
     Initializes a KafkaConsumer instance and subscribes it to the relevant Kafka topics
+    Return: None
     """
 
     item_consumer = KafkaConsumer(name='item_consumer')

@@ -14,7 +14,7 @@ class KafkaConsumer:
         """
         Subscribe to a Kafka topic
         Param: topics List[KafkaTopics]: The kafka topics to consume
-        Returns: None
+        Return: None
         """
         
         topics = [topic.value for topic in topics]
@@ -24,7 +24,7 @@ class KafkaConsumer:
     def consume(self) -> None:
         """
         Consume messages from subscribed Kafka topics
-        Returns: None
+        Return: None
         """
 
         try:
@@ -51,7 +51,7 @@ class KafkaConsumer:
         """
         Log wrapper
         Param: log [String]: The log to wrap
-        Returns: None
+        Return: None
         """
 
         logger.info(f"KAFKA CONSUMER ({self.name}): {log}")

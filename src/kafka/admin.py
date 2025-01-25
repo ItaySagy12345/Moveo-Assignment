@@ -41,7 +41,7 @@ class KafkaAdmin:
         """
         Log wrapper
         Param: log [String]: The log to wrap
-        Returns: None
+        Return: None
         """
 
         logger.info(f"KAFKA ADMIN: {log}")

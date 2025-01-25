@@ -13,7 +13,7 @@ class KafkaProducer:
         Produce a Kafka message to a specific topic
         Param: topic [KafkaTopics]: The kafka topic to which the message will be produced
         Param: message [String]: The message to produce
-        Returns: None
+        Return: None
         """
 
         self._producer.produce(topic=topic.value, value=message.encode('utf-8'), callback=self._report)
@@ -24,7 +24,7 @@ class KafkaProducer:
         Callback function that reports on the newly produced message
         Param: error [String]: The error if there is one
         Param: message [String]: The message produced
-        Returns: None
+        Return: None
         """
 
         if error:
@@ -36,7 +36,7 @@ class KafkaProducer:
         """
         Log wrapper
         Param: log [String]: The log to wrap
-        Returns: None
+        Return: None
         """
 
         logger.info(f"KAFKA PRODUCER: {log}")
