@@ -12,7 +12,6 @@ services:
       - moveo-net
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    platform: linux/amd64
 
   pgadmin:
     image: dpage/pgadmin4:latest
@@ -29,10 +28,9 @@ services:
     volumes:
       - ./pgpass:/pgpass
       - ./servers.json:/pgadmin4/servers.json
-    platform: linux/amd64
 
   zookeeper:
-    image: wurstmeister/zookeeper:latest
+    image: confluentinc/cp-zookeeper:latest
     container_name: zookeeper-container
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
@@ -41,46 +39,23 @@ services:
       - "2181:2181"
     networks:
       - moveo-net
-    platform: linux/amd64
 
   kafka:
-    image: wurstmeister/kafka:latest
+    image: confluentinc/cp-kafka:latest
     container_name: kafka-container
     environment:
-      KAFKA_LISTENERS: INSIDE://0.0.0.0:9093,OUTSIDE://0.0.0.0:9094
-      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9093,OUTSIDE://localhost:9094
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     ports:
-      - "9093:9093" # Internal
-      - "9094:9094" # External
+      - "9093:9093"
     depends_on:
       - zookeeper
     networks:
       - moveo-net
-    platform: linux/amd64
-
-  kafka-setup:
-    image: wurstmeister/kafka:latest
-    container_name: kafka-setup-container
-    depends_on:
-      - kafka
-    networks:
-      - moveo-net
-    entrypoint: >
-      sh -c "
-        until kafka-broker-api-versions.sh --bootstrap-server kafka:9093; do
-          echo 'Waiting for Kafka...';
-          sleep 2;
-        done;
-
-        kafka-topics.sh --create --topic item_created --bootstrap-server kafka:9093 --partitions 1 --replication-factor 1 &&
-        kafka-topics.sh --create --topic item_updated --bootstrap-server kafka:9093 --partitions 1 --replication-factor 1;
-
-        echo 'Kafka topics created successfully.';
-      "
-    platform: linux/amd64
+    restart: always
 
   server:
     image: server
@@ -95,15 +70,17 @@ services:
       - "8000:8000"
     depends_on:
       - postgres
-      - kafka-setup
+      - kafka
     networks:
       - moveo-net
+    volumes:
+      - ./src:/app/src
     command: >
       sh -c "
         echo 'Waiting for Postgres to be ready...';
         until nc -z -v -w30 postgres 5432; do
           echo 'Waiting for Postgres...';
-          sleep 2;
+          sleep 5;
         done;
 
         echo 'Postgres is up, running migrations...';
@@ -111,13 +88,12 @@ services:
         echo 'Migrations complete, waiting for Kafka...';
         until nc -z -v -w30 kafka 9093; do
           echo 'Waiting for Kafka...';
-          sleep 2;
+          sleep 5;
         done;
 
         echo 'Kafka is up, starting app...';
         uvicorn src.server:app --host 0.0.0.0 --port 8000
       "
-    platform: linux/amd64
 
 networks:
   moveo-net:

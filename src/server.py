@@ -1,9 +1,11 @@
 import threading
 from fastapi import FastAPI
 from src.kafka.admin import kafka_admin
+from src.routes.home_route import home_router
 from src.routes.items_routes import items_router
 from src.kafka.consumer import KafkaConsumer
 from src.kafka.utils.topics import KafkaTopics
+from fastapi.staticfiles import StaticFiles
 
 
 def initialize_item_consumer() -> None:
@@ -25,6 +27,10 @@ def initialize_item_consumer() -> None:
 
 
 app = FastAPI()
+
+app.mount("/static", StaticFiles(directory="src/static"), name="static")
+
+app.include_router(home_router)
 app.include_router(items_router, prefix="/api")
 
 threading.Thread(target=initialize_item_consumer, daemon=True).start()

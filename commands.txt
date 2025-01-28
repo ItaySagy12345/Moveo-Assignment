@@ -56,3 +56,7 @@ Verify correct user: SELECT current_user;
 # ALEMBIC IN CONTAINER:
 Generate migration: docker-compose exec server-container alembic revision --autogenerate -m "Create items table"
 Upgrade migration: docker-compose exec server-container alembic upgrade head
+
+# RUNTIME TOOLS:
+Swagger: http://localhost:8000/docs
+Pgadmin: http://localhost:8080/browser/

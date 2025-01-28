@@ -14,5 +14,6 @@ up:
 
 down:
 	docker compose down
+	docker rmi server
 	docker image prune
 	docker volume prune
